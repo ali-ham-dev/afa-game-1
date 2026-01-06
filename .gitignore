@@ -12,11 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Scaffold files
-.env
-package.json
-pnpm-lock.yaml
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
