@@ -34,7 +34,8 @@ class GameScene extends Phaser.Scene {
         this.basket = this.physics.add.image(this.scale.width / 2, 400, "basket");
         this.basket.setOrigin(0.5, -1.5);
         this.basket.setImmovable(true);
-        this.basket.body.allowGravity = false;
+        // @ts-ignore
+        this.basket.body!.allowGravity = false;
         this.basket.setCollideWorldBounds(true);
 
         // --- Apple Setup ---
