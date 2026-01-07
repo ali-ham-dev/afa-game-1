@@ -31,11 +31,13 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #0f0f1e;
+  background: #070727;
 
   #game-container {
-    width: 100%;
-    height: 100%;
+      width: 80%;
+      height: 80%;
+      border: 0.4rem solid #ba0f29;
+      overflow: hidden;
   }
 }
 </style>
