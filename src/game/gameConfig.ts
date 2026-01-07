@@ -27,10 +27,14 @@ function update(this: Phaser.Scene) {
 }
 
 export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameConfig => {
+  const container = document.getElementById(parentElement)
+  const width = container?.clientWidth
+  const height = container?.clientHeight
+
   return {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight - 140,
+    width: width,
+    height: height,
     parent: parentElement,
     physics: {
       default: 'arcade',
@@ -38,6 +42,10 @@ export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameC
         gravity: { x: 0, y: 300 },
         debug: false
       }
+    },
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH
     },
     scene: {
       preload,
