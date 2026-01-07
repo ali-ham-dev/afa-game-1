@@ -1,35 +1,40 @@
 import Phaser from 'phaser'
+import bgImage from './assets/bg.png'
+import basketImage from './assets/basket.png'
 
 function preload(this: Phaser.Scene) {
-  // Load assets here
-  // this.load.image('logo', 'assets/logo.png')
+  this.load.image("bg", bgImage)
+  this.load.image("basket", basketImage)
 }
 
 function create(this: Phaser.Scene) {
-  const text = this.add.text(this.scale.width / 2, this.scale.height / 2 - 50, 'Phaser Game Ready!', {
-    fontSize: '32px',
-    color: '#ffffff'
-  })
-  text.setOrigin(0.5)
+  const bg = this.add.image(this.scale.width / 2, this.scale.height / 2, "bg")
+  bg.setOrigin(0.5, 0.5)
+  
+  // Maintain aspect ratio without stretching
+  const scaleX = this.scale.width / bg.width
+  const scaleY = this.scale.height / bg.height
+  const scale = Math.min(scaleX, scaleY)
 
-  const circle = this.add.circle(this.scale.width / 2, this.scale.height / 2 + 50, 50, 0x667eea)
-  circle.setInteractive()
-  circle.on('pointerdown', () => {
-    circle.setFillStyle(0x764ba2)
-  })
-  circle.on('pointerup', () => {
-    circle.setFillStyle(0x667eea)
-  })
+  bg.setScale(scale)
+
+  const basket = this.physics.add.image(0, 400, "basket")
+  basket.setOrigin(0, -1.5)
+  basket.setImmovable(true)
+  basket.body.allowGravity = false
 }
 
 function update(this: Phaser.Scene) {
   // Game loop logic here
 }
-
+ 
 export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameConfig => {
   const container = document.getElementById(parentElement)
   const width = container?.clientWidth
   const height = container?.clientHeight
+
+  const gravityX = 0
+  const gravityY = 300
 
   return {
     type: Phaser.AUTO,
@@ -39,7 +44,7 @@ export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameC
     physics: {
       default: 'arcade',
       arcade: {
-        gravity: { x: 0, y: 300 },
+        gravity: { x: gravityX, y: gravityY },
         debug: false
       }
     },
