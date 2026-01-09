@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
 import Phaser from 'phaser';
-import { createGameConfig } from '../game/gameConfig';
+import { createGameConfig } from '../game/index';
 
 let game: Phaser.Game | null = null;
 
@@ -36,7 +36,7 @@ onUnmounted(() => {
     #game-container {
         width: 80%;
         height: 80%;
-        border: 0.4rem solid #ba0f29;
+        border: 0.2rem solid #ba0f29;
         overflow: hidden;
     }
 }

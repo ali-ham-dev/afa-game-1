@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import bgImage from './assets/bg.png';
-import basketImage from './assets/basket.png';
-import apple from './assets/apple.png';
+import bgImage from '../assets/bg.png';
+import basketImage from '../assets/basket.png';
+import apple from '../assets/apple.png';
 
-class GameScene extends Phaser.Scene {
+export class ActionScene extends Phaser.Scene {
     basket!: Phaser.Physics.Arcade.Image;
     cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
     apple!: Phaser.Physics.Arcade.Image;
@@ -15,7 +15,7 @@ class GameScene extends Phaser.Scene {
     gameOverText!: Phaser.GameObjects.Text;
 
     constructor() {
-        super('GameScene');
+        super('ActionScene');
     }
 
     preload() {
@@ -132,33 +132,4 @@ class GameScene extends Phaser.Scene {
         this.gameOverText.setOrigin(0.5);
         this.gameOverText.setDepth(100);
     }
-}
-
-export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameConfig => {
-  const container = document.getElementById(parentElement);
-  const width = container?.clientWidth;
-  const height = container?.clientHeight;
-
-  const gravityX = 0;
-  const gravityY = 300;
-
-  return {
-    type: Phaser.AUTO,
-    width: width,
-    height: height,
-    parent: parentElement,
-    physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { x: gravityX, y: gravityY },
-        debug: false
-      }
-    },
-    scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    scene: GameScene,
-    backgroundColor: '#1a1a2e'
-  };
 }
