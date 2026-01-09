@@ -3,7 +3,7 @@ import bgImage from '../assets/bg.png';
 import basketImage from '../assets/basket.png';
 import apple from '../assets/apple.png';
 
-export class ActionScene extends Phaser.Scene {
+export class ActionScene1 extends Phaser.Scene {
     basket!: Phaser.Physics.Arcade.Image;
     cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
     apple!: Phaser.Physics.Arcade.Image;

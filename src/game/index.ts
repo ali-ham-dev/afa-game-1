@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { MenuScene } from './scenes/menuScene';
-import { ActionScene } from './scenes/actionScene1';
+import { ActionScene1 } from './scenes/actionScene1';
+import { ActionScene2 } from './scenes/actionScene2';
 
 export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameConfig => {
   const container = document.getElementById(parentElement);
@@ -26,7 +27,7 @@ export const createGameConfig = (parentElement: string): Phaser.Types.Core.GameC
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH
     },
-    scene: [MenuScene, ActionScene],
+    scene: [MenuScene, ActionScene1, ActionScene2],
     backgroundColor: '#1a1a2e'
   };
 }
