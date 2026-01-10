@@ -64,7 +64,7 @@ export class MenuScene extends Phaser.Scene {
     loadBtn.setInteractive();
     loadBtn.on('pointerover', () => loadBtn.setFillStyle(0x764ba2));
     loadBtn.on('pointerout', () => loadBtn.setFillStyle(0x667eea));
-    loadBtn.on('pointerdown', () => this.scene.start('ActionScene1'));
+    loadBtn.on('pointerdown', () => this.scene.start('ActionScene2'));
 
     const loadText = this.add.text(
       this.scale.width / 2,
