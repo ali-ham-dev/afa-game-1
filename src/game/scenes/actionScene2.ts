@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import mapImage from '../assets/map.png';
-import basketImage from '../assets/basket.png';
+import characterSpriteSheet from '../assets/character_sprite.png';
 
 interface BlockedRect {
     x: number;
@@ -9,11 +9,14 @@ interface BlockedRect {
     height: number;
 }
 
+type Direction = 'down' | 'downleft' | 'left' | 'upleft' | 'up' | 'upright' | 'right' | 'downright';
+
 export class ActionScene2 extends Phaser.Scene {
-    player!: Phaser.Physics.Arcade.Image;
+    player!: Phaser.Physics.Arcade.Sprite;
     cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
     obstacles!: Phaser.Physics.Arcade.StaticGroup;
     dKey!: Phaser.Input.Keyboard.Key;
+    lastDirection: Direction = 'down';
 
     // Define collision zones (blocked rectangles) in world coordinates
     // Format: { x: center_x, y: center_y, width, height }
@@ -32,7 +35,10 @@ export class ActionScene2 extends Phaser.Scene {
 
     preload() {
         this.load.image("map", mapImage);
-        this.load.image("basket", basketImage);
+        this.load.spritesheet("character", characterSpriteSheet, {
+            frameWidth: 516,
+            frameHeight: 516
+        });
     }
 
     create() {
@@ -52,11 +58,17 @@ export class ActionScene2 extends Phaser.Scene {
         this.createObstacles();
 
         // --- Player Setup ---
-        // Create player at center of map
-        this.player = this.physics.add.image(mapWidth / 2, mapHeight / 2, "basket");
+        // Create player at center of map using sprite instead of image
+        this.player = this.physics.add.sprite(mapWidth / 2, mapHeight / 2, "character");
         this.player.setCollideWorldBounds(true);
         this.player.setBounce(0);
         this.player.setMaxVelocity(300, 300);
+        
+        // Scale character down to reasonable size (adjust as needed)
+        this.player.setScale(0.4);
+
+        // --- Animations Setup ---
+        this.createAnimations();
 
         // --- Collider Setup ---
         this.physics.add.collider(this.player, this.obstacles);
@@ -82,6 +94,35 @@ export class ActionScene2 extends Phaser.Scene {
         });
     }
 
+    createAnimations() {
+        // Define animations for each direction (8 directions × 5 frames each)
+        const directions: Array<{ name: Direction; row: number }> = [
+            { name: 'down', row: 0 },
+            { name: 'downleft', row: 1 },
+            { name: 'left', row: 2 },
+            { name: 'upleft', row: 3 },
+            { name: 'up', row: 4 },
+            { name: 'upright', row: 5 },
+            { name: 'right', row: 6 },
+            { name: 'downright', row: 7 }
+        ];
+
+        directions.forEach(({ name, row }) => {
+            const startFrame = row * 5;
+            const endFrame = startFrame + 4;
+            
+            this.anims.create({
+                key: `walk-${name}`,
+                frames: this.anims.generateFrameNumbers('character', {
+                    start: startFrame,
+                    end: endFrame
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+        });
+    }
+
     createObstacles() {
         for (const rect of this.blockedRects) {
             // Create a semi-transparent rectangle as the collision body
@@ -101,22 +142,92 @@ export class ActionScene2 extends Phaser.Scene {
         }
     }
 
+    getDirectionFromVelocity(vx: number, vy: number): Direction {
+        // Determine direction based on velocity
+        const threshold = 10; // Minimum velocity to consider as movement
+        
+        const moveUp = vy < -threshold;
+        const moveDown = vy > threshold;
+        const moveLeft = vx < -threshold;
+        const moveRight = vx > threshold;
+
+        // Normalize diagonal speed (optional but ensures diagonal movement isn't faster)
+        if ((moveUp || moveDown) && (moveLeft || moveRight)) {
+            // Moving diagonally
+            if (moveUp && moveLeft) return 'upleft';
+            if (moveUp && moveRight) return 'upright';
+            if (moveDown && moveLeft) return 'downleft';
+            if (moveDown && moveRight) return 'downright';
+        }
+
+        // Cardinal directions
+        if (moveUp) return 'up';
+        if (moveDown) return 'down';
+        if (moveLeft) return 'left';
+        if (moveRight) return 'right';
+
+        // No movement
+        return this.lastDirection;
+    }
+
     update() {
         // Reset velocity each frame
         this.player.setVelocity(0, 0);
 
+        let vx = 0;
+        let vy = 0;
+
         // Handle horizontal movement
         if (this.cursor.left.isDown) {
-            this.player.setVelocityX(-300);
+            vx = -300;
         } else if (this.cursor.right.isDown) {
-            this.player.setVelocityX(300);
+            vx = 300;
         }
 
         // Handle vertical movement
         if (this.cursor.up.isDown) {
-            this.player.setVelocityY(-300);
+            vy = -300;
         } else if (this.cursor.down.isDown) {
-            this.player.setVelocityY(300);
+            vy = 300;
         }
+
+        // Normalize diagonal movement to prevent faster diagonal speed
+        if (vx !== 0 && vy !== 0) {
+            const magnitude = Math.sqrt(vx * vx + vy * vy);
+            const normalizedSpeed = 300;
+            vx = (vx / magnitude) * normalizedSpeed;
+            vy = (vy / magnitude) * normalizedSpeed;
+        }
+
+        this.player.setVelocity(vx, vy);
+
+        // Determine current direction and play animation
+        const currentDirection = this.getDirectionFromVelocity(vx, vy);
+
+        if (vx === 0 && vy === 0) {
+            // Idle: stop animation and show first frame of last direction
+            this.player.stop();
+            const idleFrame = this.getIdleFrame(this.lastDirection);
+            this.player.setFrame(idleFrame);
+        } else {
+            // Moving: update last direction and play animation
+            this.lastDirection = currentDirection;
+            this.player.play(`walk-${currentDirection}`, true);
+        }
+    }
+
+    getIdleFrame(direction: Direction): number {
+        // Map direction to the first frame of its row
+        const directionMap: Record<Direction, number> = {
+            'down': 0,
+            'downleft': 5,
+            'left': 10,
+            'upleft': 15,
+            'up': 20,
+            'upright': 25,
+            'right': 30,
+            'downright': 35
+        };
+        return directionMap[direction];
     }
 }
